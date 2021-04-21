@@ -21,12 +21,14 @@ int Waiter::getNext(ORDER &anOrder){
 void Waiter::beWaiter() {
 	b_WaiterIsFinished = false;
 	ORDER order;
-	while (myIO.getNext(order) == SUCCESS){
+
+	while (getNext(order) == SUCCESS){
 		unique_lock<mutex> lck(mutex_order_inQ);
 		order_in_Q.push(order);
 		cv_order_inQ.notify_all();
 	}
 	unique_lock<mutex> lck(mutex_order_inQ);
-	cv_order_inQ.notify_all();
 	b_WaiterIsFinished = true;
+	cv_order_inQ.notify_all();
+
 }

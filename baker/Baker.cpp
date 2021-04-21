@@ -30,6 +30,7 @@ void Baker::bake_and_box(ORDER &anOrder) {
 	if (box.size() > 0){
 		anOrder.boxes.push_back(box);
 	}
+	box.clear();
 }
 
 void Baker::beBaker() {
@@ -42,6 +43,12 @@ void Baker::beBaker() {
 	while (true){
 		unique_lock<mutex> lck(mutex_order_outQ);
 		if (b_WaiterIsFinished){
+			while (order_in_Q.size() > 0){
+				ORDER order = order_in_Q.front();
+				bake_and_box(order);
+				order_out_Vector.push_back(order);
+				order_in_Q.pop();
+			}
 			break;
 		}
 		if (order_in_Q.empty() && !b_WaiterIsFinished){
@@ -52,7 +59,6 @@ void Baker::beBaker() {
 			bake_and_box(order);
 			order_out_Vector.push_back(order);
 			order_in_Q.pop();
-
 		}
 	}
 }
